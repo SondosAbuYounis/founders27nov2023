@@ -1,0 +1,20 @@
+@font-face {
+    font-family: 'Inter';
+    src: local('InterLight'), 
+    url(Inter-Light.ttf);
+}
+@font-face {
+    font-family: 'Inter';
+    src: local('InterMedium'), 
+    url(Inter-Medium.ttf);
+}
+@font-face {
+    font-family: 'Inter';
+    src: local('InterBold'), 
+    url(Inter-Bold.ttf);
+}
+@font-face {
+    font-family: 'Inter';
+    src: local('InterSemiBold'), 
+    url(Inter-SemiBold.ttf);
+}
