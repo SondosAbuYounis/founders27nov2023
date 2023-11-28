@@ -19,6 +19,8 @@ import { Test } from "./pages/Test";
 import { MainCardFound } from "./components/MainCardFound";
 import { UserProvider } from "./hooks/useContext/UserContext";
 
+import './hooks/useContext/Config'
+
 function App() {
   // Background style
   const BgTexture = {

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { Navigate, useNavigate } from "react-router-dom";
+////JWT///////
+import { UseUser } from "../../hooks/useContext/UserContext";
 
 import {
   Cancel,
@@ -16,7 +18,7 @@ import { useModal } from "../../hooks/useContext/ModalContext";
 import { DeliveryAlertFound } from "../DeliveryAlertFound";
 Modal.setAppElement(document.getElementById("root"));
 
-export const ConfirmContact = ({  isOpen, onRequestClose }) => {
+export const ConfirmContact = ({ isOpen, onRequestClose }) => {
   const { modalIsOpen, openModal } = useModal();
 
   const [deliveryAlertIsOpen, setDeliveryAlertIsOpen] = useState(false);
@@ -40,47 +42,93 @@ export const ConfirmContact = ({  isOpen, onRequestClose }) => {
     username: "",
     city: "",
     phonenumber: "",
+    imageurl: "",
   });
-
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFormData((prevData) => ({
+      ...prevData,
+      imageurl: file,
+    }));
+  };
   const [error, setError] = useState("");
 
+  ////JWT///////
+  const { user } = UseUser();
   useEffect(() => {
-    // GET data from LOSTS
-    axios
-      .get("http://localhost:3000/users")
-      .then((response) => {
-        setUserInfo(response.data);
-        // openModal();
-      })
-      .catch((error) => {
-        console.error("Error fetching data from the first API:", error);
-      });
-  }, []);
+    if (user) {
+      axios
+        // .get(`http://localhost:3000/users/${user_id}`)
+        .then((response) => {
+          setUserInfo(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        });
+    }
+  }, [user]);
 
   const navigate = useNavigate();
 
   // Post-Send contact data
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   // End point
+  //   axios
+  //     .post("http://localhost:3000/users", formData)
+  //     .then((response) => {
+  //       // Navigate to profile page or feedpage
+  //       // navigate("/");
+  //       // alert successful submission
+  //       // window.location.href = '/card/:id';
+  //       setFormData({
+  //         username: "",
+  //         city: "",
+  //         phonenumber: "",
+  //       });
+  //       openModal();
+  //     })
+  //     .catch((error) => {
+  //       setError("Something went wrong");
+  //     });
+  // };
+  //////////////NEWWW//////////
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // End point
-    axios
-      .post("http://localhost:3000/users", formData)
-      .then((response) => {
-        // Navigate to profile page or feedpage
-        // navigate("/");
-        // alert successful submission
-        // window.location.href = '/card/:id';
-        setFormData({
-          username: "",
-          city: "",
-          phonenumber: "",
-        });
-        openModal();
-      })
-      .catch((error) => {
-        setError("Something went wrong");
-      });
+
+    // Create FormData object and append form fields
+    const formDataToSend = new FormData();
+    for (const key in formData) {
+      // Skip appending imageurl to FormData here
+      if (key !== "imageurl") {
+        formDataToSend.append(key, formData[key]);
+      }
+    }
+
+    try {
+      // Append imageurl separately if it exists
+      if (formData.imageurl) {
+        formDataToSend.append(
+          "image",
+          formData.imageurl,
+          formData.imageurl.name
+        );
+      }
+
+      // End point
+      const response = await axios.post(
+        "http://localhost:3000/Founds",
+        formData
+      );
+
+      // Navigate or handle success as needed
+      console.log("Form data sent successfully:", formData);
+      navigate("/");
+    } catch (error) {
+      setError("Something went wrong");
+    }
   };
+
   // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -108,8 +156,7 @@ export const ConfirmContact = ({  isOpen, onRequestClose }) => {
           <Cancel />
         </button>
         <div className="self-center">
-          <AlertRed />{" "}
-          {userInfo.username}
+          <AlertRed /> {userInfo.username}
         </div>
         <div className="text-[1rem] font-light text-[#fff] text-wrap text-center">
           {" "}
@@ -162,10 +209,17 @@ export const ConfirmContact = ({  isOpen, onRequestClose }) => {
               className="border-2 border-gray-300 rounded px-2 py-1"
             />
           </label>
-
+          <label htmlFor="">insert you id pic </label>
+          <input
+            type="file"
+            id="profileImageInput"
+            accept="image/*"
+            className=""
+            // value={formData.imageurl}
+            onChange={handleFileChange}
+          />{" "}
           {/* {" "}
              +962 70 0000 0000 <Copy />{" "} */}
-
           <button
             type="submit"
             className="mt-8 self-center text-center w-52 px-3 pb-2 text-[#fff] bg-transparent border border-1 border-[#fff] font-light focus:outline-none hover:bg-[#ffffff] hover:text-[#373737]  rounded-lg text-[1rem] px-5 py-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"

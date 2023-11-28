@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Modal from "react-modal";
 import { Cancel } from "../../assets/icons/IconsSVGConst";
+////////JWT///////////
+import { UseUser } from "../../hooks/useContext/UserContext";
+
 Modal.setAppElement(document.getElementById("root"));
 
 const UpdateUserDataModal = ({ isOpen, onRequestClose }) => {
@@ -15,6 +18,91 @@ const UpdateUserDataModal = ({ isOpen, onRequestClose }) => {
 
   const defaultImageURL =
     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAh0lEQVR42mP4z/CfPwMDAzMDP//PAAmgsHk1Ab0AAAAASUVORK5CYII=";
+
+  // const [userData, setUserData] = useState({
+  //   user_id: "",
+  //   username: "",
+  //   country: "",
+  //   city: "",
+  //   email: "",
+  //   phonenumber: "",
+  //   password: "",
+  //   // Add other fields as needed
+  // });
+
+  // const [editedUsername, setEditedUsername] = useState("");
+  // const [editedCity, setEditedCity] = useState("");
+  // const [editedCountry, setEditedCountry] = useState("");
+  // const [editedEmail, setEditedEmail] = useState("");
+  // const [editedPhoneNumber, setEditedPhoneNumber] = useState("");
+  // const [editedPassword, setEditedPassword] = useState("");
+  // const [editedImage, setEditedImage] = useState("");
+
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     try {
+  //       const response = await axios.get("http://localhost:3000/users?user_id=1");
+  //       const fetchedUserData = response.data[0];
+
+  //       setUserData({
+  //         user_id: fetchedUserData.user_id,
+  //         username: fetchedUserData.username,
+  //         country: fetchedUserData.country,
+  //         city: fetchedUserData.city,
+  //         email: fetchedUserData.email,
+  //         phonenumber: fetchedUserData.phonenumber,
+  //         password: fetchedUserData.password,
+  //         // Add other fields as needed
+  //       });
+  //     } catch (error) {
+  //       console.error("Error fetching user data:", error);
+  //     }
+  //   };
+
+  //   fetchUserData();
+  // }, []);
+
+  // const handleUpdateInfo = async (e) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     // Make a request to update the user data
+  //     const response = await axios.put("http://localhost:3000/api/update-profile", {
+  //       user_id: userData.user_id, // Include the user_id in the request
+  //       username: editedUsername,
+  //       country: editedCountry,
+  //       city: editedCity,
+  //       email: editedEmail,
+  //       phonenumber: editedPhoneNumber,
+  //       password: editedPassword,
+  //       // Include any other fields you want to update
+  //     });
+
+  //     // Handle the response from the server
+  //     console.log("Update successful", response.data);
+
+  //     // Optionally, you can fetch the updated user data from the server
+  //     // and update the state with the new data
+  //     const updatedUserData = await axios.get("http://localhost:3000/users?user_id=1");
+  //     const fetchedUserData = updatedUserData.data[0];
+
+  //     setUserData({
+  //       user_id: fetchedUserData.user_id,
+  //       username: fetchedUserData.username,
+  //       country: fetchedUserData.country,
+  //       city: fetchedUserData.city,
+  //       email: fetchedUserData.email,
+  //       phonenumber: fetchedUserData.phonenumber,
+  //       password: fetchedUserData.password,
+  //       // Add other fields as needed
+  //     });
+  //   } catch (error) {
+  //     console.error("Error updating profile", error);
+  //     // Handle errors here
+  //   }
+  // };
+
+  const { user } = UseUser();
 
   const [userData, setUserData] = useState({
     user_id: "",
@@ -33,12 +121,14 @@ const UpdateUserDataModal = ({ isOpen, onRequestClose }) => {
   const [editedEmail, setEditedEmail] = useState("");
   const [editedPhoneNumber, setEditedPhoneNumber] = useState("");
   const [editedPassword, setEditedPassword] = useState("");
-  const [editedImage, setEditedImage] = useState("");
+  const [editedImage, setEditedImage] = useState(null); // Use null to represent no change in the image
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/users?user_id=1");
+        const response = await axios.get(
+          `http://localhost:3000/users?user_id=${user.user_id}`
+        );
         const fetchedUserData = response.data[0];
 
         setUserData({
@@ -57,46 +147,65 @@ const UpdateUserDataModal = ({ isOpen, onRequestClose }) => {
     };
 
     fetchUserData();
-  }, []);
+  }, [user]);
 
   const handleUpdateInfo = async (e) => {
     e.preventDefault();
 
     try {
+      const formData = new FormData();
+
+      // Append the updated user data
+      formData.append("username", editedUsername || userData.username);
+      formData.append("country", editedCountry || userData.country);
+      formData.append("city", editedCity || userData.city);
+      formData.append("email", editedEmail || userData.email);
+      formData.append("phonenumber", editedPhoneNumber || userData.phonenumber);
+      formData.append("password", editedPassword || userData.password);
+
+      // Append the updated image if available
+      if (editedImage) {
+        formData.append("image", editedImage, editedImage.name);
+      }
+
       // Make a request to update the user data
-      const response = await axios.put("http://localhost:3000/api/update-profile", {
-        user_id: userData.user_id, // Include the user_id in the request
-        username: editedUsername,
-        country: editedCountry,
-        city: editedCity,
-        email: editedEmail,
-        phonenumber: editedPhoneNumber,
-        password: editedPassword,
-        // Include any other fields you want to update
-      });
+      const response = await axios.put(
+        `http://localhost:3000/api/update-profile/${user.user_id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+            "Content-Type": "multipart/form-data", // Set content type to multipart/form-data
+          },
+        }
+      );
 
       // Handle the response from the server
       console.log("Update successful", response.data);
 
-      // Optionally, you can fetch the updated user data from the server
-      // and update the state with the new data
-      const updatedUserData = await axios.get("http://localhost:3000/users?user_id=1");
-      const fetchedUserData = updatedUserData.data[0];
-
+      // Optionally, you can update the state with the new data
       setUserData({
-        user_id: fetchedUserData.user_id,
-        username: fetchedUserData.username,
-        country: fetchedUserData.country,
-        city: fetchedUserData.city,
-        email: fetchedUserData.email,
-        phonenumber: fetchedUserData.phonenumber,
-        password: fetchedUserData.password,
+        ...userData,
+        username: editedUsername || userData.username,
+        country: editedCountry || userData.country,
+        city: editedCity || userData.city,
+        email: editedEmail || userData.email,
+        phonenumber: editedPhoneNumber || userData.phonenumber,
+        password: editedPassword || userData.password,
         // Add other fields as needed
       });
+
+      // Clear the edited image state
+      setEditedImage(null);
     } catch (error) {
       console.error("Error updating profile", error);
       // Handle errors here
     }
+  };
+
+  const handleImageChange = (e) => {
+    const selectedImage = e.target.files[0];
+    setEditedImage(selectedImage);
   };
 
   return (
@@ -143,9 +252,11 @@ const UpdateUserDataModal = ({ isOpen, onRequestClose }) => {
         <label htmlFor="">Image</label>
         <input
           type="file"
+          onChange={handleImageChange}
+          accept="image/*"
           src={defaultImageURL}
           className="bg-[#86868673] p-1 mb-1 rounded-full w-[5rem]"
-          onChange={(e) => setEditedImage(e.target.files[0])}
+          // onChange={(e) => setEditedImage(e.target.files[0])}
         />
 
         {/* <img

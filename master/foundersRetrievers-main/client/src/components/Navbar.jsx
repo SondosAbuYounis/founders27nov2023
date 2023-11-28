@@ -2,9 +2,13 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import LogoTwoPng from '../assets/clips/LogoTwoPng.png'
 import { Plus, LinkIcon, Minus } from '../assets/icons/IconsSVGConst'
+////JWT///////
+import { UseUser } from '../hooks/useContext/UserContext'
 
 
 export const Navbar = () => {
+////JWT///////
+const { isAuthenticated, logout } = UseUser();
 
   return (
     <div className='flex flex-row justify-around'>
@@ -25,13 +29,27 @@ export const Navbar = () => {
             <li className=' mb-2 mt-6 mx-2'>
                 <div className="w-[7rem] px-3 pb-2 text-transparent  bg-transparent focus:outline-none   px-5 py-2 rounded-[0.65rem] text-xs font-semibold"></div>
             </li>
+            {isAuthenticated ? (
+          <>
+            <li>
+              <Link to="/profilepage">Profile</Link>
+            </li>
+            <li className="  mx-2">
+                <Link to=""> <button onClick={logout} className=" px-3 pb-2 text-[#E83434] bg-transparent border border-2 border-[#E83434]  focus:outline-none hover:bg-[#E83434] hover:text-[#FFFFFF] text-xs font-semibold rounded-[0.65rem] text-xs px-5 py-2  dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 whitespace-nowrap ">LOG OUT </button></Link>
+            </li>
+          </>
+        ) : (
+            <>
             <li className=' mb-2 mt-6 mx-2'>
                 <Link to="/signin" className=" px-3 pb-2 text-[#000000] bg-transparent focus:outline-none  hover:border hover:border-2 hover:border-[#E83434]  hover:text-[#E83434]  px-5 py-2 rounded-[0.65rem] text-xs font-semibold">SIGN IN</Link>
             </li>
             <li className=' mb-2 mt-6'>
                 <Link to="/signup" className=" px-3 pb-2 text-[#E83434] bg-transparent border border-2 border-[#E83434]  focus:outline-none hover:bg-[#E83434] hover:text-[#FFFFFF] text-xs font-semibold rounded-[0.65rem] text-xs px-5 py-2  dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">SIGN UP</Link>
             </li>
+            </>
+        )}
         </ul>
+
     </div>
   )
 }

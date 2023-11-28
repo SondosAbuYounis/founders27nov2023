@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Await } from 'react-router-dom';
 import { Navigate, useNavigate  } from "react-router-dom";
+////JWT///////
+import { UseUser } from '../hooks/useContext/UserContext';
 
 
 const SingIn = () => {
@@ -102,14 +104,18 @@ const SingIn = () => {
       const validPassword = validatePassword(formData.password);
       setIsPasswordValid(validPassword);
 
-      
+      ////JWT///////
+      const { login } = UseUser();
+
 
     // Send the form data to the server for authentication
     axios.post('http://localhost:3000/login', formData)
       .then((response) => {
-        navigate("/");
+        //////JWT///////
+        const token = response.data.token;
+        login(token);
 
-        // add navigation and successfully signed in 
+        navigate("/");
       })
       .catch((error) => {
         setError('Invalid credentials. Please try again.');

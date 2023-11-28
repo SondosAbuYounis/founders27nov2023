@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+////////////////JWT/////////////////
+import { UseUser } from "../../hooks/useContext/UserContext";
+
+
 
 export const UserData = () => {
   const defaultImageURL =
@@ -9,22 +13,47 @@ export const UserData = () => {
 
   const [profileImage, setProfileImage] = useState(null);
 
+  // useEffect(() => {
+  //   // Fetch user data based on the user's ID
+  //   const fetchUserData = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "http://localhost:3000/users?user_id=1"
+  //       );
+  //       setUserData(response.data[0]);
+  //       console.log(userData);
+  //     } catch (error) {
+  //       console.error("Error fetching user data:", error);
+  //     }
+  //   };
+
+  //   fetchUserData();
+  // }, [userData]); 
+
+
+  /////////JWT //////////////
+  const { user } = UseUser();
   useEffect(() => {
-    // Fetch user data based on the user's ID
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/users?user_id=1"
-        );
-        setUserData(response.data[0]);
-        console.log(userData);
+        if (user) {
+          const response = await axios.get("http://localhost:3000/user-profile", {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          });
+
+          setUserData(response.data);
+        }
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     };
 
     fetchUserData();
-  }, [userData]); // Include userId in dependencies or pass it as a prop
+  }, [user]);
+
+
 
   // State variables for editable fields
   const [editedUsername, setEditedUsername] = useState(userData.username);

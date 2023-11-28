@@ -4,31 +4,61 @@ import { useModal } from "../../hooks/useContext/ModalContext";
 import Modal from "react-modal";
 import UpdateUserDataModal from "./UpdateUserDataModal";
 
+///////////JWT/////////////
+import { UseUser } from "../../hooks/useContext/UserContext";
+
 Modal.setAppElement(document.getElementById("root"));
 
-export const UserDataTwo = ({  isOpen, onRequestClose}) => {
+export const UserDataTwo = ({ isOpen, onRequestClose }) => {
   const { modalIsOpen, openModal, closeModal } = useModal();
 
   const defaultImageURL =
     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAh0lEQVR42mP4z/CfPwMDAzMDP//PAAmgsHk1Ab0AAAAASUVORK5CYII=";
   const [userData, setUserData] = useState({});
 
+
+  ///////////JWT///////////////
+  const { user } = UseUser();
   useEffect(() => {
-    // Fetch user data based on the user's ID
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/users?user_id=1"
-        );
-        setUserData(response.data[0]);
-        console.log(userData);
+        if (user) {
+          // Use the user token to make an authenticated request to fetch user data
+          const response = await axios.get(
+            "http://localhost:3000/user-profile",
+            {
+              headers: {
+                Authorization: `Bearer ${user.token}`,
+              },
+            }
+          );
+
+          setUserData(response.data);
+        }
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     };
 
     fetchUserData();
-  }, []);
+  }, [user]);
+
+  // useEffect(() => {
+  //   // Fetch user data based on the user's ID
+  //   const fetchUserData = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "http://localhost:3000/users?user_id=1"
+  //       );
+  //       setUserData(response.data[0]);
+  //       console.log(userData);
+  //     } catch (error) {
+  //       console.error("Error fetching user data:", error);
+  //     }
+  //   };
+
+  //   fetchUserData();
+  // }, []);
 
   return (
     <>
@@ -56,12 +86,13 @@ export const UserDataTwo = ({  isOpen, onRequestClose}) => {
           {userData.phonenumber}{" "}
         </div>
         <hr className=" w-[12rem] border-[#868686] border-dashed  sm:mx-auto dark:border-gray-700 " />
-        <div className=" mt-8 text-[#000] font-light text-[0.9rem] hover:underline flex gap-16 items-center" onClick={() => openModal()} >
+        <div
+          className=" mt-8 text-[#000] font-light text-[0.9rem] hover:underline flex gap-16 items-center"
+          onClick={() => openModal()}
+        >
           Update my Info
         </div>
-        <UpdateUserDataModal
-          isOpen={modalIsOpen}
-          onRequestClose={closeModal}/>
+        <UpdateUserDataModal isOpen={modalIsOpen} onRequestClose={closeModal} />
       </div>
     </>
   );
